@@ -514,9 +514,9 @@
 
         .no-btn {
             padding: 10px 30px;
-            font-size: 13px;
+            font-size: 15px;
             font-family: 'Quicksand', sans-serif;
-            font-weight: 400;
+            font-weight: 600;
             color: rgba(240, 230, 246, 0.4);
             background: transparent;
             border: 1px solid rgba(240, 230, 246, 0.1);
@@ -923,61 +923,50 @@
 
         // ===== Runaway "No" Button =====
         const noBtn = document.getElementById('noBtn');
-        let runAwayCount = 0;
-        const messages = [
-            '😤 Chưa, để suy nghĩ đã...',
-            '😠 Hừ, chưa tha đâu!',
-            '🙄 Cục zàng vẫn giận!',
-            '😒 Đừng có mong!',
-            '😏 Hmm... có thể...',
-            '🤔 Để cục zàng suy nghĩ lại...',
-            '😊 Thôi bấm nút kia đi~',
-        ];
+        let movedToBody = false;
 
-        noBtn.addEventListener('mouseover', function (e) {
-            if (window.innerWidth < 768) return; // Skip on mobile
+        noBtn.addEventListener('mouseover', function () {
+            const btnW = this.offsetWidth;
+            const btnH = this.offsetHeight;
+            const vw = window.innerWidth;
+            const vh = window.innerHeight;
 
-            const maxX = window.innerWidth - this.offsetWidth - 40;
-            const maxY = window.innerHeight - this.offsetHeight - 40;
-            const randomX = Math.random() * maxX;
-            const randomY = Math.random() * maxY;
+            // Lần đầu: đưa nút ra body để position:fixed hoạt động đúng
+            if (!movedToBody) {
+                document.body.appendChild(this);
+                movedToBody = true;
+            }
+
+            const newX = 30 + Math.random() * (vw - btnW - 60);
+            const newY = 30 + Math.random() * (vh - btnH - 60);
 
             this.style.position = 'fixed';
-            this.style.left = randomX + 'px';
-            this.style.top = randomY + 'px';
-            this.style.zIndex = '999';
-            this.style.transition = 'all 0.3s ease';
-
-            runAwayCount++;
-            if (runAwayCount < messages.length) {
-                this.textContent = messages[runAwayCount];
-            } else {
-                this.textContent = '💕 Thôi tha thứ đi mà~';
-                this.onclick = celebrate;
-            }
+            this.style.left = newX + 'px';
+            this.style.top = newY + 'px';
+            this.style.zIndex = '9999';
+            this.style.transition = 'none';
         });
 
-        // On mobile - tapping the button moves it
-        noBtn.addEventListener('click', function (e) {
-            if (window.innerWidth >= 768) return;
+        // On mobile
+        noBtn.addEventListener('touchstart', function (e) {
+            e.preventDefault();
+            const btnW = this.offsetWidth;
+            const btnH = this.offsetHeight;
+            const vw = window.innerWidth;
+            const vh = window.innerHeight;
 
-            const maxX = window.innerWidth - this.offsetWidth - 40;
-            const maxY = window.innerHeight - this.offsetHeight - 40;
-            const randomX = Math.random() * maxX;
-            const randomY = Math.max(100, Math.random() * maxY);
+            if (!movedToBody) {
+                document.body.appendChild(this);
+                movedToBody = true;
+            }
+
+            const newX = 30 + Math.random() * (vw - btnW - 60);
+            const newY = 30 + Math.random() * (vh - btnH - 60);
 
             this.style.position = 'fixed';
-            this.style.left = randomX + 'px';
-            this.style.top = randomY + 'px';
-            this.style.zIndex = '999';
-
-            runAwayCount++;
-            if (runAwayCount < messages.length) {
-                this.textContent = messages[runAwayCount];
-            } else {
-                this.textContent = '💕 Thôi tha thứ đi mà~';
-                this.onclick = celebrate;
-            }
+            this.style.left = newX + 'px';
+            this.style.top = newY + 'px';
+            this.style.zIndex = '9999';
         });
 
         // ===== Celebration =====
