@@ -963,52 +963,36 @@
             const letterScene = document.getElementById('letterScene');
             const transition = document.getElementById('pageTransition');
             const bgVideo = document.getElementById('bgVideo');
-            const tapText = document.querySelector('.tap-text');
 
-            // BÍ QUYẾT: Kích hoạt video ngay trong sự kiện click để trình duyệt không chặn (bypass tính năng khóa video của iPhone/Android)
+            // Kích hoạt video ngay (bypass chặn autoplay trên điện thoại)
             if (bgVideo) {
                 bgVideo.play().catch(e => console.log('Unlock video:', e));
             }
 
-            tapText.textContent = "Đang nạp yêu thương (Cục zàng chờ xíu)...";
-            tapText.style.animation = "none";
-            tapText.style.opacity = "1";
+            // MỞ THƯ NGAY LẬP TỨC - KHÔNG CHỜ VIDEO NỮA!
+            transition.classList.add('active');
+            setTimeout(() => {
+                envelopeScene.classList.add('hidden');
+                letterScene.classList.add('active');
+                transition.classList.remove('active');
 
-            const proceed = () => {
-                transition.classList.add('active');
-                setTimeout(() => {
-                    envelopeScene.classList.add('hidden');
-                    letterScene.classList.add('active');
-                    transition.classList.remove('active');
+                revealLines();
+                playMusic();
 
-                    if (bgVideo) {
+                // Video sẽ TỪ TỪ HIỆN RA phía sau khi nó tải xong (không ép ai chờ)
+                if (bgVideo) {
+                    if (bgVideo.readyState >= 3) {
+                        // Video đã sẵn sàng → hiện luôn
                         bgVideo.classList.add('active');
+                    } else {
+                        // Video chưa tải xong → lắng nghe, khi nào xong thì fade in mượt mà
+                        bgVideo.addEventListener('canplay', function onReady() {
+                            bgVideo.removeEventListener('canplay', onReady);
+                            bgVideo.classList.add('active');
+                        });
                     }
-
-                    revealLines();
-                    playMusic();
-                }, 500);
-            };
-
-            // Nếu không có video hoặc video đã sẵn sàng (đủ data để chơi mượt)
-            if (!bgVideo || bgVideo.readyState >= 3) {
-                proceed();
-            } else {
-                const onCanPlay = () => {
-                    bgVideo.removeEventListener('canplay', onCanPlay);
-                    proceed();
-                };
-
-                bgVideo.addEventListener('canplay', onCanPlay);
-
-                // Mạng quá chậm, đợi 6 giây rồi vẫn cho vô (video sẽ hiện lúc nó tự nạp đủ)
-                setTimeout(() => {
-                    bgVideo.removeEventListener('canplay', onCanPlay);
-                    if (!letterScene.classList.contains('active')) {
-                        proceed();
-                    }
-                }, 6000);
-            }
+                }
+            }, 500);
         }
 
         // ===== Reveal Lines One by One =====
