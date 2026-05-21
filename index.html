@@ -34,23 +34,35 @@
             z-index: -2;
         }
 
-        .bg-video {
+        .bg-video-wrapper {
             position: fixed;
-            top: 50%;
-            left: 50%;
-            min-width: 100%;
-            min-height: 100%;
-            transform: translate(-50%, -50%);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             z-index: -1;
             opacity: 0;
             transition: opacity 2.5s ease;
             filter: blur(8px) brightness(0.35);
-            /* Làm mờ và tối đi */
-            object-fit: cover;
+            pointer-events: none;
+            overflow: hidden;
         }
 
-        .bg-video.active {
+        .bg-video-wrapper.active {
             opacity: 1;
+        }
+
+        .bg-video-wrapper iframe {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 177.78vh;
+            height: 100vh;
+            min-width: 100vw;
+            min-height: 56.25vw;
+            transform: translate(-50%, -50%);
+            border: 0;
+            pointer-events: none;
         }
 
         /* ===== Stars Background ===== */
@@ -607,10 +619,12 @@
             }
         }
 
-        .video-container video {
+        .video-container iframe {
             width: 100%;
+            aspect-ratio: 16 / 9;
             display: block;
             border-radius: 14px;
+            border: 0;
         }
 
         .celebration-emoji {
@@ -792,10 +806,12 @@
 <body>
     <!-- Backgrounds -->
     <div class="bg-gradient"></div>
-    <video class="bg-video" id="bgVideo" muted loop playsinline preload="auto"
-        poster="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7">
-        <source src="「AMV」- Sad Song ᴴᴰ.mp4" type="video/mp4">
-    </video>
+    <div class="bg-video-wrapper" id="bgVideoWrapper">
+        <iframe id="bgVideoIframe"
+            src="https://www.youtube.com/embed/exXNEDZDuwc?autoplay=1&mute=1&loop=1&playlist=exXNEDZDuwc&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1&start=0"
+            allow="autoplay; encrypted-media" allowfullscreen>
+        </iframe>
+    </div>
 
     <!-- Stars -->
     <div class="stars" id="stars"></div>
@@ -869,7 +885,7 @@
 
             <!-- Video Container -->
             <div class="video-container" id="videoContainer">
-                <!-- Video sẽ được chuyển vào đây bằng Javascript -->
+                <!-- YouTube video sẽ được tạo ở đây bằng Javascript -->
             </div>
 
             <p class="celebration-sub">
@@ -962,14 +978,9 @@
             const envelopeScene = document.getElementById('envelopeScene');
             const letterScene = document.getElementById('letterScene');
             const transition = document.getElementById('pageTransition');
-            const bgVideo = document.getElementById('bgVideo');
+            const bgWrapper = document.getElementById('bgVideoWrapper');
 
-            // Kích hoạt video ngay (bypass chặn autoplay trên điện thoại)
-            if (bgVideo) {
-                bgVideo.play().catch(e => console.log('Unlock video:', e));
-            }
-
-            // MỞ THƯ NGAY LẬP TỨC - KHÔNG CHỜ VIDEO NỮA!
+            // MỞ THƯ NGAY LẬP TỨC!
             transition.classList.add('active');
             setTimeout(() => {
                 envelopeScene.classList.add('hidden');
@@ -979,18 +990,9 @@
                 revealLines();
                 playMusic();
 
-                // Video sẽ TỪ TỪ HIỆN RA phía sau khi nó tải xong (không ép ai chờ)
-                if (bgVideo) {
-                    if (bgVideo.readyState >= 3) {
-                        // Video đã sẵn sàng → hiện luôn
-                        bgVideo.classList.add('active');
-                    } else {
-                        // Video chưa tải xong → lắng nghe, khi nào xong thì fade in mượt mà
-                        bgVideo.addEventListener('canplay', function onReady() {
-                            bgVideo.removeEventListener('canplay', onReady);
-                            bgVideo.classList.add('active');
-                        });
-                    }
+                // YouTube video đã tự autoplay từ lúc load trang, chỉ cần fade in hiện ra thôi!
+                if (bgWrapper) {
+                    bgWrapper.classList.add('active');
                 }
             }, 500);
         }
@@ -1087,25 +1089,15 @@
             letterScene.style.display = 'none';
             celebrationScene.classList.add('active');
 
-            // Thu nhỏ video nền vào khung nhỏ để tiếp tục phát
-            const bgVideo = document.getElementById('bgVideo');
+            // Ẩn video nền, tạo video mới trong khung nhỏ
+            const bgWrapper = document.getElementById('bgVideoWrapper');
             const videoContainer = document.getElementById('videoContainer');
-            if (bgVideo && videoContainer) {
-                // Tắt các class fixed ở nền để phục hồi nền tím
-                bgVideo.classList.remove('bg-video');
-                bgVideo.classList.remove('active');
-
-                // Đổ style mới để hiện đẹp trong khung nhỏ
-                bgVideo.style.width = '100%';
-                bgVideo.style.display = 'block';
-                bgVideo.style.borderRadius = '14px';
-
-                // Thu video vào container (video sẽ không bị ngắt/tải lại)
-                videoContainer.innerHTML = '';
-                videoContainer.appendChild(bgVideo);
-
-                // BẮT BUỘC RIÊNG CHO ĐIỆN THOẠI BỊ TẮT KHI DỜI DOM:
-                bgVideo.play().catch(e => console.log('Replay error:', e));
+            if (bgWrapper) {
+                bgWrapper.classList.remove('active');
+                bgWrapper.style.display = 'none';
+            }
+            if (videoContainer) {
+                videoContainer.innerHTML = '<iframe src="https://www.youtube.com/embed/exXNEDZDuwc?autoplay=1&mute=1&loop=1&playlist=exXNEDZDuwc&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1" allow="autoplay; encrypted-media" allowfullscreen></iframe>';
             }
 
             // Create confetti
