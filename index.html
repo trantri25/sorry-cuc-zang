@@ -868,7 +868,9 @@
 
             <!-- Video Container -->
             <div class="video-container" id="videoContainer">
-                <!-- Video sẽ được chuyển vào đây -->
+                <video id="celebrationVideo" muted loop playsinline preload="auto" style="display:none;">
+                    <source src="celebration-video.mp4" type="video/mp4">
+                </video>
             </div>
 
             <p class="celebration-sub">
@@ -1084,28 +1086,18 @@
             letterScene.style.display = 'none';
             celebrationScene.classList.add('active');
 
-            // Thu nhỏ video nền vào khung nhỏ để tiếp tục phát
+            // Ẩn video nền, hiện video nét trong khung nhỏ
             const bgVideo = document.getElementById('bgVideo');
-            const videoContainer = document.getElementById('videoContainer');
-            if (bgVideo && videoContainer) {
-                bgVideo.classList.remove('bg-video');
-                bgVideo.classList.remove('active');
-                bgVideo.style.position = 'relative';
-                bgVideo.style.top = 'auto';
-                bgVideo.style.left = 'auto';
-                bgVideo.style.transform = 'none';
-                bgVideo.style.minWidth = 'auto';
-                bgVideo.style.minHeight = 'auto';
-                bgVideo.style.width = '100%';
-                bgVideo.style.display = 'block';
-                bgVideo.style.borderRadius = '14px';
-                bgVideo.style.filter = 'none';
-                bgVideo.style.opacity = '1';
-                bgVideo.style.zIndex = 'auto';
+            if (bgVideo) {
+                bgVideo.style.display = 'none';
+                bgVideo.pause();
+            }
 
-                videoContainer.innerHTML = '';
-                videoContainer.appendChild(bgVideo);
-                bgVideo.play().catch(e => console.log('Replay error:', e));
+            // Hiện video nét trong khung chúc mừng
+            const celebrationVideo = document.getElementById('celebrationVideo');
+            if (celebrationVideo) {
+                celebrationVideo.style.display = 'block';
+                celebrationVideo.play().catch(e => console.log('Celebration video error:', e));
             }
 
             // Create confetti
