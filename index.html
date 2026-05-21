@@ -18,10 +18,39 @@
 
         body {
             min-height: 100vh;
-            background: linear-gradient(135deg, #0c0014 0%, #1a0a2e 30%, #2d1b4e 60%, #1a0a2e 100%);
+            background-color: #0c0014;
             font-family: 'Quicksand', sans-serif;
             overflow-x: hidden;
             color: #f0e6f6;
+        }
+
+        .bg-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0c0014 0%, #1a0a2e 30%, #2d1b4e 60%, #1a0a2e 100%);
+            z-index: -2;
+        }
+
+        .bg-video {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            min-width: 100%;
+            min-height: 100%;
+            transform: translate(-50%, -50%);
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 2.5s ease;
+            filter: blur(8px) brightness(0.35);
+            /* Làm mờ và tối đi */
+            object-fit: cover;
+        }
+
+        .bg-video.active {
+            opacity: 1;
         }
 
         /* ===== Stars Background ===== */
@@ -377,21 +406,22 @@
 
         /* ===== Letter Card ===== */
         .letter-card {
-            background: rgba(255, 255, 255, 0.03);
+            background: rgba(74, 35, 90, 0.65);
+            /* Nền tím mờ tệp với thiệp */
             backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 24px;
             padding: 40px 30px;
             width: 100%;
             max-width: 520px;
             box-shadow:
-                0 8px 32px rgba(0, 0, 0, 0.3),
-                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+                0 8px 32px rgba(0, 0, 0, 0.6),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
         }
 
         .letter-title {
             font-family: 'Dancing Script', cursive;
-            font-size: 36px;
+            font-size: 38px;
             text-align: center;
             margin-bottom: 24px;
             background: linear-gradient(135deg, #ff9a9e, #fecfef, #ffdde1);
@@ -399,21 +429,23 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
             font-weight: 700;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8));
         }
 
         .letter-divider {
             width: 60px;
             height: 2px;
-            background: linear-gradient(90deg, transparent, rgba(255, 154, 158, 0.5), transparent);
+            background: linear-gradient(90deg, transparent, rgba(255, 154, 158, 0.8), transparent);
             margin: 0 auto 24px;
         }
 
         .letter-body {
-            font-size: 15px;
+            font-size: 16px;
             line-height: 1.9;
-            color: rgba(240, 230, 246, 0.85);
-            font-weight: 300;
+            color: #ffffff;
+            font-weight: 500;
             min-height: 200px;
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
         }
 
         .letter-body .line {
@@ -432,17 +464,20 @@
 
         .highlight {
             color: #ff9a9e;
-            font-weight: 500;
+            font-weight: 700;
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
         }
 
         .letter-signature {
             text-align: right;
             font-family: 'Dancing Script', cursive;
-            font-size: 24px;
-            color: rgba(255, 154, 158, 0.8);
+            font-size: 26px;
+            color: rgba(255, 154, 158, 1);
             margin-top: 20px;
             opacity: 0;
             animation: revealLine 0.6s ease forwards;
+            font-weight: 700;
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
         }
 
         /* ===== Forgive Button ===== */
@@ -536,12 +571,46 @@
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            gap: 30px;
+            gap: 20px;
             animation: slideUp 0.8s ease forwards;
+            width: 100%;
         }
 
         .celebration-scene.active {
             display: flex;
+        }
+
+        .video-container {
+            width: 100%;
+            max-width: 520px;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4), 0 0 20px rgba(255, 154, 158, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            background: #000;
+            opacity: 0;
+            animation: shrinkFromBackground 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+            animation-delay: 0.2s;
+        }
+
+        @keyframes shrinkFromBackground {
+            0% {
+                transform: scale(3) translateY(-100px);
+                opacity: 0;
+                filter: blur(10px) brightness(0.5);
+            }
+
+            100% {
+                transform: scale(1) translateY(0);
+                opacity: 1;
+                filter: blur(0) brightness(1);
+            }
+        }
+
+        .video-container video {
+            width: 100%;
+            display: block;
+            border-radius: 14px;
         }
 
         .celebration-emoji {
@@ -721,6 +790,12 @@
 </head>
 
 <body>
+    <!-- Backgrounds -->
+    <div class="bg-gradient"></div>
+    <video class="bg-video" id="bgVideo" muted loop playsinline>
+        <source src="「AMV」- Sad Song ᴴᴰ.mp4" type="video/mp4">
+    </video>
+
     <!-- Stars -->
     <div class="stars" id="stars"></div>
 
@@ -790,6 +865,12 @@
         <div class="celebration-scene" id="celebrationScene">
             <div class="celebration-emoji">🥰</div>
             <h2 class="celebration-text">Cảm ơn cục zàng!</h2>
+
+            <!-- Video Container -->
+            <div class="video-container" id="videoContainer">
+                <!-- Video sẽ được chuyển vào đây bằng Javascript -->
+            </div>
+
             <p class="celebration-sub">
                 Trí hứa sẽ cố gắng tốt hơn mỗi ngày 🌟<br>
                 Vì cục zàng xứng đáng được nhận điều tuyệt vời nhất 💝<br><br>
@@ -883,6 +964,14 @@
                 envelopeScene.classList.add('hidden');
                 letterScene.classList.add('active');
                 transition.classList.remove('active');
+
+                // Active background video
+                const bgVideo = document.getElementById('bgVideo');
+                if (bgVideo) {
+                    bgVideo.play().catch(e => console.log('Bg video error:', e));
+                    bgVideo.classList.add('active');
+                }
+
                 revealLines();
                 playMusic();
             }, 500);
@@ -979,6 +1068,24 @@
             letterScene.classList.remove('active');
             letterScene.style.display = 'none';
             celebrationScene.classList.add('active');
+
+            // Thu nhỏ video nền vào khung nhỏ để tiếp tục phát
+            const bgVideo = document.getElementById('bgVideo');
+            const videoContainer = document.getElementById('videoContainer');
+            if (bgVideo && videoContainer) {
+                // Tắt các class fixed ở nền để phục hồi nền tím
+                bgVideo.classList.remove('bg-video');
+                bgVideo.classList.remove('active');
+
+                // Đổ style mới để hiện đẹp trong khung nhỏ
+                bgVideo.style.width = '100%';
+                bgVideo.style.display = 'block';
+                bgVideo.style.borderRadius = '14px';
+
+                // Thu video vào container (video sẽ không bị ngắt/tải lại)
+                videoContainer.innerHTML = '';
+                videoContainer.appendChild(bgVideo);
+            }
 
             // Create confetti
             createConfetti();
