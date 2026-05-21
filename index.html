@@ -954,28 +954,61 @@
         ];
 
         // ===== Open Letter =====
+        let isOpening = false;
         function openLetter() {
+            if (isOpening) return;
+            isOpening = true;
+
             const envelopeScene = document.getElementById('envelopeScene');
             const letterScene = document.getElementById('letterScene');
             const transition = document.getElementById('pageTransition');
+            const bgVideo = document.getElementById('bgVideo');
+            const tapText = document.querySelector('.tap-text');
 
-            transition.classList.add('active');
+            tapText.textContent = "Đang nạp yêu thương (Cục zàng chờ xíu)...";
+            tapText.style.animation = "none";
+            tapText.style.opacity = "1";
 
-            setTimeout(() => {
-                envelopeScene.classList.add('hidden');
-                letterScene.classList.add('active');
-                transition.classList.remove('active');
+            const proceed = () => {
+                transition.classList.add('active');
+                setTimeout(() => {
+                    envelopeScene.classList.add('hidden');
+                    letterScene.classList.add('active');
+                    transition.classList.remove('active');
 
-                // Active background video
-                const bgVideo = document.getElementById('bgVideo');
-                if (bgVideo) {
-                    bgVideo.play().catch(e => console.log('Bg video error:', e));
-                    bgVideo.classList.add('active');
-                }
+                    // Active background video
+                    if (bgVideo) {
+                        bgVideo.play().catch(e => console.log('Bg video error:', e));
+                        bgVideo.classList.add('active');
+                    }
 
-                revealLines();
-                playMusic();
-            }, 500);
+                    revealLines();
+                    playMusic();
+                }, 500);
+            };
+
+            // Nếu không có video hoặc video đã sẵn sàng (đủ data để chơi mượt)
+            if (!bgVideo || bgVideo.readyState >= 3) {
+                proceed();
+            } else {
+                // Ép tải nếu nó đang ngủ
+                bgVideo.load();
+
+                const onCanPlay = () => {
+                    bgVideo.removeEventListener('canplay', onCanPlay);
+                    proceed();
+                };
+
+                bgVideo.addEventListener('canplay', onCanPlay);
+
+                // Backup: Nếu mạng quá chậm, đợi 7 giây rồi vẫn cho mở phong bì
+                setTimeout(() => {
+                    bgVideo.removeEventListener('canplay', onCanPlay);
+                    if (!letterScene.classList.contains('active')) {
+                        proceed();
+                    }
+                }, 7000);
+            }
         }
 
         // ===== Reveal Lines One by One =====
