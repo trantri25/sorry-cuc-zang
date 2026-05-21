@@ -965,6 +965,11 @@
             const bgVideo = document.getElementById('bgVideo');
             const tapText = document.querySelector('.tap-text');
 
+            // BÍ QUYẾT: Kích hoạt video ngay trong sự kiện click để trình duyệt không chặn (bypass tính năng khóa video của iPhone/Android)
+            if (bgVideo) {
+                bgVideo.play().catch(e => console.log('Unlock video:', e));
+            }
+
             tapText.textContent = "Đang nạp yêu thương (Cục zàng chờ xíu)...";
             tapText.style.animation = "none";
             tapText.style.opacity = "1";
@@ -976,9 +981,7 @@
                     letterScene.classList.add('active');
                     transition.classList.remove('active');
 
-                    // Active background video
                     if (bgVideo) {
-                        bgVideo.play().catch(e => console.log('Bg video error:', e));
                         bgVideo.classList.add('active');
                     }
 
@@ -991,9 +994,6 @@
             if (!bgVideo || bgVideo.readyState >= 3) {
                 proceed();
             } else {
-                // Ép tải nếu nó đang ngủ
-                bgVideo.load();
-
                 const onCanPlay = () => {
                     bgVideo.removeEventListener('canplay', onCanPlay);
                     proceed();
@@ -1001,13 +1001,13 @@
 
                 bgVideo.addEventListener('canplay', onCanPlay);
 
-                // Backup: Nếu mạng quá chậm, đợi 7 giây rồi vẫn cho mở phong bì
+                // Mạng quá chậm, đợi 6 giây rồi vẫn cho vô (video sẽ hiện lúc nó tự nạp đủ)
                 setTimeout(() => {
                     bgVideo.removeEventListener('canplay', onCanPlay);
                     if (!letterScene.classList.contains('active')) {
                         proceed();
                     }
-                }, 7000);
+                }, 6000);
             }
         }
 
