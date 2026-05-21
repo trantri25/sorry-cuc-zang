@@ -1119,6 +1119,9 @@
                 // Thu video vào container (video sẽ không bị ngắt/tải lại)
                 videoContainer.innerHTML = '';
                 videoContainer.appendChild(bgVideo);
+
+                // BẮT BUỘC RIÊNG CHO ĐIỆN THOẠI BỊ TẮT KHI DỜI DOM:
+                bgVideo.play().catch(e => console.log('Replay error:', e));
             }
 
             // Create confetti
