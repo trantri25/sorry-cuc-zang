@@ -965,9 +965,13 @@
             const transition = document.getElementById('pageTransition');
             const bgVideo = document.getElementById('bgVideo');
 
-            // Kích hoạt video ngay (bypass chặn autoplay trên điện thoại)
+            // Kích hoạt CẢ HAI video ngay (bypass chặn autoplay trên điện thoại)
             if (bgVideo) {
-                bgVideo.play().catch(e => console.log('Unlock video:', e));
+                bgVideo.play().catch(e => console.log('Unlock bg video:', e));
+            }
+            const celebrationVideo = document.getElementById('celebrationVideo');
+            if (celebrationVideo) {
+                celebrationVideo.play().catch(e => console.log('Unlock celebration video:', e));
             }
 
             // MỞ THƯ NGAY LẬP TỨC!
@@ -1086,18 +1090,17 @@
             letterScene.style.display = 'none';
             celebrationScene.classList.add('active');
 
-            // Ẩn video nền, hiện video nét trong khung nhỏ
+            // Ẩn video nền, hiện video nét (đã chạy sẵn đồng bộ)
             const bgVideo = document.getElementById('bgVideo');
             if (bgVideo) {
                 bgVideo.style.display = 'none';
                 bgVideo.pause();
             }
 
-            // Hiện video nét trong khung chúc mừng
+            // Hiện video nét - nó đã chạy ngầm từ lúc mở thư nên KHÔNG bị reset!
             const celebrationVideo = document.getElementById('celebrationVideo');
             if (celebrationVideo) {
                 celebrationVideo.style.display = 'block';
-                celebrationVideo.play().catch(e => console.log('Celebration video error:', e));
             }
 
             // Create confetti
